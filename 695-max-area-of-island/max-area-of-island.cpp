@@ -1,67 +1,53 @@
 class Solution {
 public:
-
-    // Returns the area of the island starting from (i, j)
-    int dfs(vector<vector<int>>& grid, int i, int j) {
-
-        int m = grid.size();
-        int n = grid[0].size();
-
-        // Base Case:
-        // If outside the grid or current cell is water/already visited,
-        // it contributes 0 area.
-        if (i < 0 || j < 0 || i >= m || j >= n || grid[i][j] == 0)
-            return 0;
-
-        // Mark current land cell as visited.
-        grid[i][j] = 0;
-
-        // Area =
-        // Current cell (1)
-        // + area from all 4 directions
-        return 1
-             + dfs(grid, i + 1, j)
-             + dfs(grid, i - 1, j)
-             + dfs(grid, i, j + 1)
-             + dfs(grid, i, j - 1);
-    }
-
     int maxAreaOfIsland(vector<vector<int>>& grid) {
 
-        int m = grid.size();
-        int n = grid[0].size();
+        int n = grid.size();
+        int m = grid[0].size();
 
-        int ans = 0;
+        int dx[4] = {0, 0, 1, -1};
+        int dy[4] = {1, -1, 0, 0};
 
-        // Traverse every cell in the grid.
-        for (int i = 0; i < m; i++) {
-            for (int j = 0; j < n; j++) {
+        int maxArea = 0;
 
-                // Found a new island.
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+
                 if (grid[i][j] == 1) {
 
-                    // Compute its area and keep the maximum.
-                    ans = max(ans, dfs(grid, i, j));
+                    int area = 0;
+                    queue<pair<int, int>> q;
+
+                    q.push({i, j});
+                    grid[i][j] = 0; // Mark as visited
+
+                    while (!q.empty()) {
+
+                        auto [x, y] = q.front();
+                        q.pop();
+
+                        area++;
+
+                        for (int k = 0; k < 4; k++) {
+
+                            int nx = x + dx[k];
+                            int ny = y + dy[k];
+
+                            if (nx >= 0 && nx < n &&
+                                ny >= 0 && ny < m &&
+                                grid[nx][ny] == 1) {
+
+                                q.push({nx, ny});
+                                grid[nx][ny] = 0; // Mark as visited
+                            }
+                        }
+                    }
+
+                    maxArea = max(maxArea, area);
                 }
             }
         }
 
-        return ans;
+        return maxArea;
     }
 };
-
-/*
-Intuition:
-
-1. Traverse every cell in the grid.
-2. Whenever we find an unvisited land cell (1),
-   start a DFS from it.
-3. DFS marks every connected land cell as visited by
-   changing it to 0.
-4. Each visited land contributes 1 to the island's area.
-5. The DFS returns:
-      1 + area from all four neighbors.
-6. Compare the returned area with the current maximum.
-7. Since every cell is visited only once,
-   the overall time complexity is O(m × n).
-*/
