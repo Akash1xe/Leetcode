@@ -1,34 +1,61 @@
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right)
+ *         : val(x), left(left), right(right) {}
+ * };
+ */
+
 class Solution {
 public:
-    void inorder(TreeNode* root, vector<int>& sorted) {
+    TreeNode *first = nullptr;
+    TreeNode *middle = nullptr;
+    TreeNode *last = nullptr;
+    TreeNode *prev = nullptr;
+
+    void inorder(TreeNode* root) {
         if (root == nullptr)
             return;
 
-        inorder(root->left, sorted);
-        sorted.push_back(root->val);
-        inorder(root->right, sorted);
-    }
+        // Left
+        inorder(root->left);
 
-    void compare(TreeNode* root, vector<int>& sorted, int &idx) {
-        if (root == nullptr)
-            return;
+        // Violation found
+        if (prev != nullptr && root->val < prev->val) {
 
-        compare(root->left, sorted, idx);
+            // First violation
+            if (first == nullptr) {
+                first = prev;
+                middle = root;
+            }
+            // Second violation
+            else {
+                last = root;
+            }
+        }
 
-        root->val = sorted[idx++];
-        
-        compare(root->right, sorted, idx);
+        // Update previous node
+        prev = root;
+
+        // Right
+        inorder(root->right);
     }
 
     void recoverTree(TreeNode* root) {
 
-        vector<int> sorted;
+        inorder(root);
 
-        inorder(root, sorted);
+        // Non-adjacent swapped nodes
+        if (first != nullptr && last != nullptr)
+            swap(first->val, last->val);
 
-        sort(sorted.begin(), sorted.end());
-
-        int idx = 0;
-        compare(root, sorted, idx);
+        // Adjacent swapped nodes
+        else if (first != nullptr && middle != nullptr)
+            swap(first->val, middle->val);
     }
-};
+}; 
