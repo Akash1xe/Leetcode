@@ -4,7 +4,7 @@ public:
 
         // grid[i][j] = shortest distance from house i to house j
         // Initialize with a very large value (acts as INF)
-        vector<vector<int>> grid(n + 1, vector<int>(n + 1, 1000));
+        vector<vector<int>> grid(n + 1, vector<int>(n + 1, 100000));
 
         // Distance from a house to itself is 0
         for (int i = 1; i <= n; i++) {
