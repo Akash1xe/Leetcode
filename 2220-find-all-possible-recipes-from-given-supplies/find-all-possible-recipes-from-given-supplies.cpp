@@ -1,68 +1,75 @@
-/*     Scroll below to see JAVA code also    */
-/*
-    MY YOUTUBE VIDEO ON THIS Qn : https://www.youtube.com/watch?v=4Tixc5mU-Pk
-    Company Tags                : 
-    Leetcode Link               : https://leetcode.com/problems/find-all-possible-recipes-from-given-supplies
-*/
-
-
-/************************************************************ C++ ************************************************************/
-//Approach-1 - Brute Force
-//T.C : O(n^2 * m)
-//S.C : O(n+S)
+//Approach-2 - Using Topological Sorting
+//T.C : O(n + m + S)
+//S.C : O(n + S)
 class Solution {
 public:
     vector<string> findAllRecipes(vector<string>& recipes, vector<vector<string>>& ingredients, vector<string>& supplies) {
-        
+
         int n = recipes.size();
 
-        // Stores all recipes that can be prepared
-        vector<string> result;
-
-        // Stores all currently available items
-        // (initial supplies + recipes prepared later)
+        // Stores all initially available supplies
         unordered_set<string> st(begin(supplies), end(supplies));
 
-        // Keeps track of recipes that have already been prepared
-        vector<bool> cooked(n, false);
+        // Adjacency List
+        // ingredient -> list of recipes that depend on it
+        unordered_map<string, vector<int>> adj;
 
-        // Perform at most n passes since each pass can prepare
-        // at least one new recipe
-        int count = n;
-        while(count--) {
 
-            // Try preparing every recipe
-            for(int j = 0; j < n; j++) {
+        // indegree[i] = number of ingredients of recipe i
+        // that are not initially available
+        vector<int> indegree(n, 0);
 
-                // Skip if this recipe is already prepared
-                if(cooked[j]) {
-                    continue;
+        // Build the graph
+        for(int i = 0; i < n; i++) {
+            for(string& ing : ingredients[i]) {
+
+                // Ignore ingredients that are already available
+                if(!st.count(ing)) {
+
+                    // This ingredient is required for recipe i
+                    adj[ing].push_back(i);
+
+                    // One more dependency for recipe i
+                    indegree[i]++;
                 }
+            }
+        }
 
-                // Assume all ingredients are available
-                bool banpaega = true;
+        // Stores all recipes that can currently be prepared
+        queue<int> que;
 
-                // Check whether every ingredient is present
-                for(int k = 0; k < ingredients[j].size(); k++) {
-                    if(!st.count(ingredients[j][k])) {
-                        // Missing ingredient, cannot prepare now
-                        banpaega = false;
-                        break;
-                    }
-                }
+        // Recipes with no missing ingredients
+        // can be prepared immediately
+        for(int i = 0; i < n; i++) {
+            if(indegree[i] == 0) {
+                que.push(i);
+            }
+        }
 
-                // If all ingredients are available,
-                // prepare this recipe
-                if(banpaega) {
+        vector<string> result;
 
-                    // Prepared recipe now becomes a new supply
-                    st.insert(recipes[j]);
+        // Standard Kahn's Algorithm (Topological Sort)
+        while(!que.empty()) {
 
-                    // Store the prepared recipe
-                    result.push_back(recipes[j]);
+            // Current recipe that can be prepared
+            int i = que.front();
+            que.pop();
 
-                    // Mark it as prepared
-                    cooked[j] = true;
+            string recipe = recipes[i];
+
+            // Add to the answer
+            result.push_back(recipe);
+
+            // This recipe now acts as an ingredient
+            // for other recipes depending on it
+            for(int &idx : adj[recipe]) {
+
+                // One dependency has been satisfied
+                indegree[idx]--;
+
+                // All dependencies satisfied
+                if(indegree[idx] == 0) {
+                    que.push(idx);
                 }
             }
         }
