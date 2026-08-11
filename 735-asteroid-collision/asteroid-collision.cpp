@@ -2,48 +2,41 @@ class Solution {
 public:
     vector<int> asteroidCollision(vector<int>& asteroids) {
 
-        stack<int> st;
+        vector<int> st;
 
-        for (int asteroid : asteroids) {
+        for (int i = 0; i < asteroids.size(); i++) {
 
-            bool destroyed = false;
-
-            // Collision is possible only when:
-            // stack top -> right (+)
-            // current   -> left (-)
-            while (!st.empty() && st.top() > 0 && asteroid < 0) {
-
-                if (st.top() < -asteroid) {
-                    // Stack asteroid is smaller -> destroyed
-                    st.pop();
-                }
-                else if (st.top() == -asteroid) {
-                    // Both same size -> both destroyed
-                    st.pop();
-                    destroyed = true;
-                    break;
-                }
-                else {
-                    // Current asteroid is smaller -> destroyed
-                    destroyed = true;
-                    break;
-                }
+            // Positive asteroid moves to the right
+            if (asteroids[i] > 0) {
+                st.push_back(asteroids[i]);
             }
 
-            // Current asteroid survived all collisions
-            if (!destroyed) {
-                st.push(asteroid);
+            // Negative asteroid moves to the left
+            else {
+
+                // Destroy smaller positive asteroids
+                while (!st.empty() &&
+                       st.back() > 0 &&
+                       st.back() < abs(asteroids[i])) {
+
+                    st.pop_back();
+                }
+
+                // Both asteroids have the same size
+                if (!st.empty() &&
+                    st.back() == abs(asteroids[i])) {
+
+                    st.pop_back();
+                }
+
+                // Negative asteroid survives
+                else if (st.empty() || st.back() < 0) {
+
+                    st.push_back(asteroids[i]);
+                }
             }
         }
 
-        // Stack contains answer in reverse order
-        vector<int> ans(st.size());
-
-        for (int i = ans.size() - 1; i >= 0; i--) {
-            ans[i] = st.top();
-            st.pop();
-        }
-
-        return ans;
+        return st;
     }
 };
