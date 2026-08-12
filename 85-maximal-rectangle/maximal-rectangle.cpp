@@ -1,175 +1,87 @@
 class Solution {
 public:
 
-    // ---------------------------------------------------------
-    // Function: Find the largest rectangle area in a histogram
-    // Example: [2, 1, 5, 6, 2, 3]
-    // ---------------------------------------------------------
+    // Function to find the largest rectangle area in a histogram
     int largestRectangleArea(vector<int>& heights) {
 
-        // Stack stores INDEXES of histogram bars.
-        // The indexes in stack maintain increasing heights.
+        // Stack stores indices of bars in increasing height order
         stack<int> st;
 
-        // Stores the maximum rectangle area found so far.
+        // Stores the maximum rectangle area found so far
         int maxArea = 0;
 
-        // Number of bars in histogram.
-        int n = heights.size();
+        // Add a sentinel 0 at the end to process all remaining bars
+        heights.push_back(0);
 
+        // Traverse through every bar
+        for (int i = 0; i < heights.size(); i++) {
 
-        // We go one extra step: i == n
-        // This extra position acts like a bar of height 0.
-        //
-        // Why?
-        // It forces all remaining bars in the stack to be popped
-        // and their rectangle areas to be calculated.
-        for (int i = 0; i <= n; i++) {
+            // If current bar is smaller, calculate areas
+            // of bars that are taller than the current bar
+            while (!st.empty() && heights[i] < heights[st.top()]) {
 
-            // Normally:
-            //     currHeight = heights[i]
-            //
-            // But when i == n, there is no heights[n].
-            // So we pretend there is a height 0.
-            int currHeight = (i == n) ? 0 : heights[i];
-
-
-            // If current height is smaller than the height
-            // at the stack's top index, the rectangle belonging
-            // to that taller bar can no longer continue.
-            //
-            // Therefore, we calculate its rectangle area.
-            while (!st.empty() && currHeight < heights[st.top()]) {
-
-                // Height of the rectangle.
-                int h = heights[st.top()];
-
-                // Remove this bar from the stack.
+                // Get the height of the bar being removed
+                int height = heights[st.top()];
                 st.pop();
 
+                // Calculate the width of the rectangle
+                // If stack is empty, rectangle extends from 0 to i-1
+                // Otherwise, it extends from st.top()+1 to i-1
+                int width = st.empty() ? i : i - st.top() - 1;
 
-                // Calculate the width of the rectangle.
-                int width;
-
-                // If stack is empty:
-                //
-                // There is NO smaller bar on the left.
-                // Therefore, rectangle can extend from index 0
-                // all the way to i - 1.
-                //
-                // Number of bars = i
-                if (st.empty())
-                    width = i;
-
-                else {
-
-                    // st.top() is the index of the first smaller
-                    // bar on the LEFT.
-                    //
-                    // i is the first smaller bar on the RIGHT.
-                    //
-                    // So the rectangle exists between them:
-                    //
-                    //        left smaller
-                    //             |
-                    //             v
-                    //     [ rectangle ]
-                    //             ^
-                    //             |
-                    //        right smaller
-                    //
-                    // Therefore:
-                    // width = right - left - 1
-                    width = i - st.top() - 1;
-                }
-
-
-                // Rectangle Area = Height × Width
-                maxArea = max(maxArea, h * width);
+                // Calculate area and update maximum area
+                maxArea = max(maxArea, height * width);
             }
 
-
-            // Put current index into the stack.
-            //
-            // Stack maintains indexes whose heights are
-            // in increasing order.
+            // Store the current bar's index in the stack
             st.push(i);
         }
 
+        // Remove the sentinel value to restore the original vector
+        heights.pop_back();
 
-        // Return the largest rectangle found.
+        // Return the largest rectangle area
         return maxArea;
     }
 
 
-    // ---------------------------------------------------------
-    // Function: Find largest rectangle consisting only of 1s
-    // in a binary matrix.
-    // ---------------------------------------------------------
+    // Function to find the largest rectangle consisting only of 1s
     int maximalRectangle(vector<vector<char>>& matrix) {
 
-        // If matrix is empty, there is no rectangle.
+        // If the matrix is empty, no rectangle exists
         if (matrix.empty()) return 0;
 
+        // Number of columns in the matrix
+        int m = matrix[0].size();
 
-        // Number of rows.
-        int rows = matrix.size();
+        // Height array represents a histogram for the current row
+        vector<int> height(m, 0);
 
-        // Number of columns.
-        int cols = matrix[0].size();
-
-
-        // heights[j] tells us:
-        //
-        // "How many consecutive 1s are there vertically
-        // ending at the current row?"
-        //
-        // Initially everything is 0.
-        vector<int> heights(cols, 0);
-
-
-        // Stores the maximum rectangle area.
+        // Stores the maximum rectangle area found
         int maxArea = 0;
 
+        // Process the matrix row by row
+        for (auto& row : matrix) {
 
-        // Process matrix row by row.
-        for (int i = 0; i < rows; i++) {
+            // Build the histogram for the current row
+            for (int i = 0; i < m; i++) {
 
+                // If the current cell is 1,
+                // increase the height of the histogram
+                if (row[i] == '1')
+                    height[i]++;
 
-            // -------------------------------------------------
-            // STEP 1:
-            // Convert current row into a histogram.
-            // -------------------------------------------------
-            for (int j = 0; j < cols; j++) {
-
-                // If current cell is 1:
-                //
-                // Extend the previous vertical column height.
-                if (matrix[i][j] == '1')
-                    heights[j] += 1;
-
-                else {
-
-                    // If current cell is 0:
-                    //
-                    // A rectangle cannot pass through 0.
-                    // So the height becomes 0.
-                    heights[j] = 0;
-                }
+                // If the current cell is 0,
+                // the consecutive height becomes 0
+                else
+                    height[i] = 0;
             }
 
-
-            // -------------------------------------------------
-            // STEP 2:
-            // Find the largest rectangle in this histogram.
-            // -------------------------------------------------
-            //
-            // We reuse the LC 84 function.
-            maxArea = max(maxArea, largestRectangleArea(heights));
+            // Find the largest rectangle in the current histogram
+            maxArea = max(maxArea, largestRectangleArea(height));
         }
 
-
-        // Return the largest rectangle of 1s.
+        // Return the maximum rectangle area in the entire matrix
         return maxArea;
     }
 };
