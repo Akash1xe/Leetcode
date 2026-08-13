@@ -2,71 +2,24 @@ class Solution {
 public:
     int longestValidParentheses(string s) {
 
-        stack<int> st;
-
-        // Boundary before the string starts
+        stack<int>st;
         st.push(-1);
+        int n = s.length();
 
-        int ans = 0;
+        int valid =0;
 
-        for (int i = 0; i < s.length(); i++) {
-
-            // Opening bracket
-            if (s[i] == '(') {
+        for(int i=0;i<n;i++){
+            if(s[i]=='('){
                 st.push(i);
-            }
-
-            // Closing bracket
-            else {
-
+            }else{
                 st.pop();
-
-                // No matching opening bracket
-                if (st.empty()) {
+                if(st.empty()){
                     st.push(i);
                 }
 
-                // Valid substring found
-                else {
-                    ans = max(ans, i - st.top());
-                }
+                valid=max(valid,i-st.top());
             }
         }
-
-        return ans;
+        return valid ;
     }
 };
-
-/*
-Intuition:
-
-We use a stack of indices.
-
-The stack stores the indices of unmatched '('
-and also acts as a boundary for the current valid substring.
-
-Initially, we push -1 because it represents the position
-before the string starts.
-
-When we see '(':
-    push its index.
-
-When we see ')':
-    pop the previous index because we try to match
-    this ')' with an opening '('.
-
-If the stack becomes empty:
-    there is no valid opening '(' available.
-    Therefore, the current ')' becomes the new boundary.
-
-Otherwise:
-    the substring from st.top() + 1 to i is valid.
-
-    Its length is:
-        i - st.top()
-
-Take the maximum length found.
-
-Time Complexity: O(n)
-Space Complexity: O(n)
-*/
