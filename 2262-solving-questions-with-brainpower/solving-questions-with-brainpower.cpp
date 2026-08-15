@@ -1,37 +1,36 @@
 class Solution {
 public:
 
-    long long solve(int i, vector<vector<int>>& questions,
-                    vector<long long>& dp) {
-
-        // Base case
-        if (i >= questions.size())
-            return 0;
-
-        // Already calculated
-        if (dp[i] != -1)
-            return dp[i];
-
-        // Choice 1: Solve current question
-        long long take =
-            questions[i][0] +
-            solve(i + questions[i][1] + 1, questions, dp);
-
-        // Choice 2: Skip current question
-        long long skip =
-            solve(i + 1, questions, dp);
-
-        // Store and return the best answer
-        return dp[i] = max(take, skip);
-    }
-
     long long mostPoints(vector<vector<int>>& questions) {
 
         int n = questions.size();
 
-        // dp[i] = maximum points starting from question i
-        vector<long long> dp(n, -1);
+        // dp[i] = maximum points we can get
+        // starting from question i
+        vector<long long> dp(n + 1, 0);
 
-        return solve(0, questions, dp);
+        // Fill from right to left
+        for (int i = n - 1; i >= 0; i--) {
+
+            int points = questions[i][0];
+            int brainpower = questions[i][1];
+
+            // Choice 1: Solve current question
+            int next = i + brainpower + 1;
+
+            long long take = points;
+
+            if (next < n) {
+                take += dp[next];
+            }
+
+            // Choice 2: Skip current question
+            long long skip = dp[i + 1];
+
+            // Take the better choice
+            dp[i] = max(take, skip);
+        }
+
+        return dp[0];
     }
 };
