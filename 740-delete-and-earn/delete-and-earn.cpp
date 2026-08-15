@@ -1,37 +1,40 @@
 class Solution {
 public:
-    int solve(int ind, vector<int>& points,vector<int>& dp) {
-        if (ind < 0) {
-            return 0;
-        }
-
-        if (ind == 0) {
-            return points[0];
-        }
-
-        if(dp[ind]!=-1){
-            return dp[ind];
-        }
-
-        int pick = points[ind] + solve(ind - 2, points,dp);
-
-        int not_pick = solve(ind - 1, points,dp);
-
-        return dp[ind] = max(pick, not_pick);
-    }
 
     int deleteAndEarn(vector<int>& nums) {
 
+        // 1. Find the largest number
         int maxi = *max_element(nums.begin(), nums.end());
 
+        // 2. points[i] = total money if we take number i
         vector<int> points(maxi + 1, 0);
 
         for (int x : nums) {
             points[x] += x;
         }
 
-        vector<int>dp(maxi+1,-1);
+        // 3. DP array
+        vector<int> dp(maxi + 1, 0);
 
-        return solve(maxi, points,dp);
+        // Base cases
+        dp[0] = points[0];
+
+        if (maxi >= 1) {
+            dp[1] = max(points[0], points[1]);
+        }
+
+        // 4. Build DP from left to right
+        for (int i = 2; i <= maxi; i++) {
+
+            // Don't take i
+            int notTake = dp[i - 1];
+
+            // Take i
+            int take = points[i] + dp[i - 2];
+
+            dp[i] = max(take, notTake);
+        }
+
+        return dp[maxi];
     }
 };
