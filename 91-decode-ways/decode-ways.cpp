@@ -1,49 +1,31 @@
 class Solution {
 public:
-    int t[101];
+    int numDecodings(string &s) {
+        int n = s.length();
 
-    // Number of ways to decode string starting from index i
-    int solve(int i, string &s, int &n) {
+        // dp[i] = number of ways to decode the first i characters
+        vector<int> dp(n + 1, 0);
 
-        // Already calculated
-        if(t[i] != -1) {
-            return t[i];
-        }
+        // Empty string has 1 valid way
+        dp[0] = 1;
 
-        // Reached end successfully
-        if(i == n) {
-            return t[i] = 1;
-        }
+        // First character cannot be '0'
+        dp[1] = (s[0] == '0') ? 0 : 1;
 
-        // 0 cannot be decoded alone
-        if(s[i] == '0') {
-            return t[i] = 0;
-        }
+        for (int i = 2; i <= n; i++) {
 
-        // Choice 1: take one digit
-        int result = solve(i + 1, s, n);
+            // Take current character as a single digit
+            if (s[i - 1] != '0') {
+                dp[i] += dp[i - 1];
+            }
 
-        // Choice 2: take two digits
-        if(i + 1 < n) {
-
-            // Valid two-digit number:
-            // 10-19 OR 20-26
-            if(s[i] == '1' ||
-              (s[i] == '2' && s[i + 1] <= '6')) {
-
-                result += solve(i + 2, s, n);
+            // Take current + previous character as a two-digit number
+            if (s[i - 2] == '1' ||
+                (s[i - 2] == '2' && s[i - 1] < '7')) {
+                dp[i] += dp[i - 2];
             }
         }
 
-        return t[i] = result;
-    }
-
-    int numDecodings(string s) {
-
-        int n = s.length();
-
-        memset(t, -1, sizeof(t));
-
-        return solve(0, s, n);
+        return dp[n];
     }
 };
