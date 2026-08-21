@@ -1,29 +1,25 @@
 class Solution {
 public:
-    const int MOD = 1e9 + 7;
+    int M = 1e9 + 7;
 
-    int solve(int n, int A, int L, vector<vector<vector<int>>>& dp) {
+    int solve(int n, int absent, int consecutive_late,
+              vector<vector<vector<int>>>& dp) {
+
+        if (absent >= 2 || consecutive_late >= 3)
+            return 0;
 
         if (n == 0)
             return 1;
 
-        if (dp[n][A][L] != -1)
-            return dp[n][A][L];
+        if (dp[n][absent][consecutive_late] != -1)
+            return dp[n][absent][consecutive_late];
 
-        long long ans = 0;
+        int A = solve(n - 1, absent + 1, 0, dp) % M;
+        int L = solve(n - 1, absent, consecutive_late + 1, dp) % M;
+        int P = solve(n - 1, absent, 0, dp) % M;
 
-        // P
-        ans += solve(n - 1, A, 0, dp);
-
-        // A
-        if (A == 0)
-            ans += solve(n - 1, 1, 0, dp);
-
-        // L
-        if (L < 2)
-            ans += solve(n - 1, A, L + 1, dp);
-
-        return dp[n][A][L] = ans % MOD;
+        return dp[n][absent][consecutive_late] =
+            ((A + L) % M + P) % M;
     }
 
     int checkRecord(int n) {
