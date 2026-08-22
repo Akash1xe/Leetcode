@@ -1,67 +1,74 @@
-class Solution {
-public:
-    int n, target;
-    vector<int> dp;
+class Solution 
+{
+public: 
 
-    bool solve(vector<int>& nums, int mask, int currSum, int k) {
+    bool canPartitionKSubsets(vector<int>& nums, int k) 
+    {
+        int n = nums.size(); 
 
-        // Only one bucket left
-        if (k == 1)
-            return true;
+        // Calculate total sum
+        int sum = 0; 
 
-        // Already calculated
-        if (dp[mask] != -1)
-            return dp[mask];
-
-        // Current bucket is complete
-        if (currSum == target) {
-            return dp[mask] = solve(nums, mask, 0, k - 1);
+        for(int x : nums) 
+        {
+            sum += x; 
         }
 
-        // Try every number
-        for (int i = 0; i < n; i++) {
-
-            // Already used
-            if (mask & (1 << i))
-                continue;
-
-            // Bucket cannot exceed target
-            if (currSum + nums[i] > target)
-                continue;
-
-            // Pick nums[i]
-            if (solve(nums,
-                      mask | (1 << i),
-                      currSum + nums[i],
-                      k))
-                return dp[mask] = true;
+        // Equal partition is impossible
+        if(sum % k != 0) 
+        {
+            return false; 
         }
 
-        return dp[mask] = false;
-    }
+        // Every bucket must have this sum
+        int target = sum / k; 
 
-    bool canPartitionKSubsets(vector<int>& nums, int k) {
+        // dp[mask] = current sum of the bucket
+        // -1 means this state cannot be reached
+        vector<int> dp(1 << n, -1); 
 
-        n = nums.size();
+        // No elements used
+        // Current bucket sum = 0
+        dp[0] = 0; 
 
-        int sum = 0;
-        for (int x : nums)
-            sum += x;
+        // Try every subset
+        for(int mask = 0; mask < (1 << n); mask++) 
+        {
+            // Skip unreachable states
+            if(dp[mask] == -1) 
+            {
+                continue; 
+            }
 
-        // Cannot divide equally
-        if (sum % k != 0)
-            return false;
+            // Try adding every unused number
+            for(int i = 0; i < n; i++) 
+            {
+                // nums[i] is already used
+                if(mask & (1 << i)) 
+                {
+                    continue; 
+                }
 
-        target = sum / k;
+                // Add nums[i] to current bucket
+                int newSum = dp[mask] + nums[i]; 
 
-        // Largest number cannot be bigger than target
-        sort(nums.rbegin(), nums.rend());
+                // Bucket cannot exceed target
+                if(newSum > target) 
+                {
+                    continue; 
+                }
 
-        if (nums[0] > target)
-            return false;
+                // Mark nums[i] as used
+                int newMask = mask | (1 << i); 
 
-        dp.assign(1 << n, -1);
+                // If bucket becomes target,
+                // modulo makes it 0 and starts next bucket
+                dp[newMask] = newSum % target; 
+            }
+        }
 
-        return solve(nums, 0, 0, k);
+        // All elements must be used
+        // and the final bucket must also be complete
+        return dp[(1 << n) - 1] == 0; 
     }
 };
