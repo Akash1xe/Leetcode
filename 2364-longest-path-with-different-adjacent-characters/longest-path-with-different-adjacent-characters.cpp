@@ -11,23 +11,40 @@
 // DFS - (Similar to Binary Tree Maximum Path Sum)
 class Solution {
 public:
+
+    // Global answer: longest valid path anywhere in the tree
     int result;
 
-    int DFS(unordered_map<int, vector<int>>& adj, int curr, int parent,
+    // Returns:
+    // longest valid downward path starting from 'curr'
+    int DFS(unordered_map<int, vector<int>>& adj,
+            int curr,
+            int parent,
             string& s) {
 
+        // Best valid branch from curr
         int longest = 0;
+
+        // Second-best valid branch from curr
         int second_longest = 0;
 
+        // Explore all neighbors
         for (int& child : adj[curr]) {
+
+            // Don't go back to parent
             if (child == parent)
                 continue;
 
-            int child_longest_length = DFS(adj, child, curr, s);
+            // Ask child for its longest downward path
+            int child_longest_length =
+                DFS(adj, child, curr, s);
 
+            // If curr and child have the same character,
+            // this child branch CANNOT connect to curr.
             if (s[child] == s[curr])
                 continue;
 
+            // Keep the two largest valid child branches
             if (child_longest_length > second_longest)
                 second_longest = child_longest_length;
 
@@ -35,27 +52,45 @@ public:
                 swap(longest, second_longest);
         }
 
-        int koi_ek_acha =
-            max(longest, second_longest) +
-            1; // Why this 1 ? Because including the curr node itself
+        // Case 1:
+        // Take the best ONE child branch + curr itself
+        int one_branch =
+            max(longest, second_longest) + 1;
 
-        int only_root_acha = 1; // only curr node is valid, rest children have
-                                // duplicate character
+        // Case 2:
+        // Use only curr
+        int only_curr = 1;
 
-        int neeche_hi_milgaya_answer = longest + second_longest + 1;
+        // Case 3:
+        // Path passes THROUGH curr using TWO child branches
+        //
+        // left branch + curr + right branch
+        int path_through_curr =
+            longest + second_longest + 1;
 
-        result = max(
-            {result, neeche_hi_milgaya_answer, koi_ek_acha, only_root_acha});
+        // Update global answer
+        result = max({
+            result,
+            one_branch,
+            only_curr,
+            path_through_curr
+        });
 
-        return max(koi_ek_acha, only_root_acha);
+        // Parent can continue through only ONE child branch.
+        return max(one_branch, only_curr);
     }
 
     int longestPath(vector<int>& parent, string s) {
+
         int n = parent.size();
+
         result = 0;
+
+        // Build undirected tree
         unordered_map<int, vector<int>> adj;
 
         for (int i = 1; i < n; i++) {
+
             int u = i;
             int v = parent[i];
 
@@ -63,6 +98,7 @@ public:
             adj[v].push_back(u);
         }
 
+        // Root the DFS at node 0
         DFS(adj, 0, -1, s);
 
         return result;
