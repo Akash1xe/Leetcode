@@ -8,13 +8,14 @@ public:
 
         for (int x : arr) {
 
-            // We need a previous value:
-            // x - difference
             int prev = x - difference;
 
-            // If prev exists, extend its subsequence.
-            // Otherwise, start a new subsequence with x.
-            dp[x] = dp[prev] + 1;
+            if (dp.find(prev) != dp.end()) {
+                dp[x] = dp[prev] + 1;
+            } 
+            else {
+                dp[x] = 1;
+            }
 
             ans = max(ans, dp[x]);
         }
