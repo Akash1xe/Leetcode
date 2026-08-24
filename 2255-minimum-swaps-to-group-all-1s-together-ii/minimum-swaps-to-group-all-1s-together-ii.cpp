@@ -1,39 +1,54 @@
 class Solution {
 public:
     int minSwaps(vector<int>& nums) {
-        int ones = 0;
+        int n = nums.size();
 
-        // Total number of 1s
+        // Count total number of 1s
+        int countOnes = 0;
+
         for (int x : nums) {
-            ones += x;
+            countOnes += x;
         }
 
-        if (ones <= 1) return 0;
+        // Sliding window
+        int i = 0;
+        int j = 0;
 
-        int zeros = 0;
-        int ans = INT_MAX;
+        // Number of 1s in the current window
+        int currCount = 0;
 
-        // Circular array: window size = number of 1s
-        for (int i = 0; i < nums.size() + ones - 1; i++) {
-            int idx = i % nums.size();
+        // Maximum number of 1s found in any window
+        int maxCount = 0;
 
-            if (nums[idx] == 0)
-                zeros++;
+        // Traverse 2*n elements to handle the circular array
+        while (j < 2 * n) {
 
-            // Maintain window size = ones
-            if (i >= ones) {
-                int left = (i - ones) % nums.size();
-
-                if (nums[left] == 0)
-                    zeros--;
+            // Add the current element to the window
+            // j % n makes the array circular
+            if (nums[j % n] == 1) {
+                currCount++;
             }
 
-            // Once window has size `ones`
-            if (i >= ones - 1) {
-                ans = min(ans, zeros);
+            // Window size should be equal to total number of 1s
+            if (j - i + 1 > countOnes) {
+
+                // Remove the leftmost element from the window
+                // Since nums[i % n] is either 0 or 1,
+                // we can directly subtract it
+                currCount -= nums[i % n];
+
+                i++;
             }
+
+            // Store the maximum number of 1s
+            // present in any window of size countOnes
+            maxCount = max(maxCount, currCount);
+
+            j++;
         }
 
-        return ans;
+        // Number of zeros in the best window
+        // = swaps required
+        return countOnes - maxCount;
     }
 };
