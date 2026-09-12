@@ -1,121 +1,88 @@
+/*     Scroll below to see JAVA code also    */
+/*
+    MY YOUTUBE VIDEO ON THIS Qn : https://www.youtube.com/watch?v=pjY5KaxYVIE
+    Company Tags                : Will update soon
+    Leetcode Link               : https://leetcode.com/problems/kth-smallest-product-of-two-sorted-arrays
+*/
+
+
+
+/****************************************************************** C++ ******************************************************************/
+//Approach (Binary Search on Answer)
+//T.C : O(log(maxP-minP) * n * log(m)
+//S.C : O(1)
 class Solution {
 public:
 
-    // Count how many pairs have product <= target.
-    long long countProducts(vector<int>& nums1,
-                            vector<int>& nums2,
-                            long long target) {
+    long long findCountSmallest(vector<int>& nums1, vector<int>& nums2, long long midProduct) {
+        long long productsCount = 0;
 
-        long long count = 0;
-        int m = nums2.size();
+        int n = nums2.size();
 
-        for (long long x : nums1) {
+        for(int i = 0; i < nums1.size(); i++) {
+            //nums1[i]
 
-            // CASE 1: x > 0
-            // x * nums2[j] increases as j increases.
-            //
-            // Pattern:
-            // true true true false false
-            //
-            // Find first position where product > target.
-            if (x > 0) {
+            if(nums1[i] >= 0) {
+                int l = 0;
+                int r = n-1;
+                int m = -1; //invalid index on left hand side
 
-                int low = 0;
-                int high = m;
+                while(l <= r) {
+                    int mid = l + (r-l)/2;
+                    long long product = 1LL * nums1[i] * nums2[mid];
 
-                while (low < high) {
-
-                    int mid = low + (high - low) / 2;
-
-                    if (x * nums2[mid] <= target) {
-                        low = mid + 1;
-                    }
-                    else {
-                        high = mid;
+                    if(product <= midProduct) {
+                        m = mid;
+                        l = mid+1;
+                    } else {
+                        r = mid-1;
                     }
                 }
+                productsCount += (m+1); //covered by nums1[i]
+            } else {
+                //product will be negative and right hand side will contain smaller products and left hand side larger
+                int l = 0;
+                int r = n-1;
+                int m = n; //invalid index on the right hand side
 
-                // nums2[0 ... low-1] are valid.
-                count += low;
-            }
+                while(l <= r) {
+                    int mid = l + (r-l)/2;
+                    long long product = 1LL * nums1[i] * nums2[mid];
 
-
-            // CASE 2: x < 0
-            // Multiplication by negative reverses the order.
-            //
-            // x * nums2[j] decreases as j increases.
-            //
-            // Pattern:
-            // false false true true true
-            //
-            // Find first position where product <= target.
-            else if (x < 0) {
-
-                int low = 0;
-                int high = m;
-
-                while (low < high) {
-
-                    int mid = low + (high - low) / 2;
-
-                    if (x * nums2[mid] <= target) {
-                        high = mid;
-                    }
-                    else {
-                        low = mid + 1;
+                    if(product <= midProduct) {
+                        m = mid;
+                        r = mid-1;
+                    } else {
+                        l = mid+1;
                     }
                 }
-
-                // nums2[low ... m-1] are valid.
-                count += (m - low);
-            }
-
-
-            // CASE 3: x == 0
-            //
-            // Every product = 0.
-            else {
-
-                if (target >= 0) {
-                    count += m;
-                }
+                                                    
+                productsCount += (n - m);
             }
         }
-
-        return count;
+        return productsCount;
     }
 
+    long long kthSmallestProduct(vector<int>& nums1, vector<int>& nums2, long long k) {
+        long long result = 0;
 
-    long long kthSmallestProduct(vector<int>& nums1,
-                                 vector<int>& nums2,
-                                 long long k) {
+        long long l = -1e10; //min product possible
+        long long r = 1e10; //max product possible
 
-        // Products can be as low as -1e10
-        // and as high as +1e10.
-        long long low = -10000000000LL;
-        long long high = 10000000000LL;
+        while(l <= r) {
+            long long midProduct = l + (r-l)/2;
 
-        // Binary Search on the answer.
-        while (low < high) {
+            //check if this is kth smallest or not
 
-            long long mid = low + (high - low) / 2;
+            long long countSmallest = findCountSmallest(nums1, nums2, midProduct);
 
-            // How many products are <= mid?
-            long long count = countProducts(nums1, nums2, mid);
-
-            // If at least k products are <= mid,
-            // kth product is mid or somewhere smaller.
-            if (count >= k) {
-                high = mid;
-            }
-
-            // Fewer than k products.
-            // Need a larger product.
-            else {
-                low = mid + 1;
+            if(countSmallest >= k) {
+                result = midProduct;
+                r = midProduct-1;
+            } else {
+                l = midProduct+1;
             }
         }
-
-        return low;
+        return result;
     }
 };
