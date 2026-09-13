@@ -45,7 +45,7 @@ public:
 
         // We are finding the first value such that:
         // count(elements <= value) >= k
-        while (low < high) {
+        while (low <= high) {
 
             int mid = low + (high - low) / 2;
 
@@ -54,7 +54,7 @@ public:
             // Enough elements are <= mid
             // So answer can be mid or smaller
             if (count >= k) {
-                high = mid;
+                high = mid-1;
             }
 
             // Not enough elements are <= mid
