@@ -14,24 +14,28 @@ public:
 
         while (row >= 0 && col < n) {
 
-            // If current value <= target,
-            // then all elements above it in this column are also <= target
+            // Current element is <= target
             if (matrix[row][col] <= target) {
 
+                // Because the column is sorted,
+                // all elements from row 0 to current row
+                // are also <= target.
                 count += row + 1;
 
-                // Move right to check next column
+                // Check next column
                 col++;
             }
             else {
+
                 // Current value is too large,
-                // move up to get a smaller value
+                // move upward to get a smaller value.
                 row--;
             }
         }
 
         return count;
     }
+
 
     int kthSmallest(vector<vector<int>>& matrix, int k) {
 
@@ -43,27 +47,28 @@ public:
         // Largest possible answer
         int high = matrix[n - 1][n - 1];
 
-        // We are finding the first value such that:
-        // count(elements <= value) >= k
+        // Binary search on the answer
         while (low <= high) {
 
             int mid = low + (high - low) / 2;
 
+            // How many elements are <= mid?
             int count = countLessEqual(matrix, mid);
 
-            // Enough elements are <= mid
-            // So answer can be mid or smaller
-            if (count >= k) {
-                high = mid-1;
+            // We still don't have k elements,
+            // so answer must be larger.
+            if (count < k) {
+                low = mid + 1;
             }
 
-            // Not enough elements are <= mid
-            // So kth smallest must be greater than mid
+            // At least k elements are <= mid.
+            // mid may be the answer, or answer may be smaller.
             else {
-                low = mid + 1;
+                high = mid - 1;
             }
         }
 
+        // First value for which count >= k
         return low;
     }
 };
