@@ -1,36 +1,28 @@
 class Solution {
 public:
-
-    string solve(int n) {
-
-        // Base case
-        if (n == 1) {
-            return "0";
-        }
-
-        // Generate S(n-1)
-        string prev = solve(n - 1);
-
-        // Copy it because we need original prev also
-        string temp = prev;
-
-        // Invert
-        for (char &ch : temp) {
-            ch = (ch == '0') ? '1' : '0';
-        }
-
-        // Reverse
-        reverse(temp.begin(), temp.end());
-
-        // Sn = S(n-1) + "1" + reverse(invert(S(n-1)))
-        return prev + "1" + temp;
-    }
-
     char findKthBit(int n, int k) {
 
-        string s = solve(n);
+        // Base case
+        if (n == 1)
+            return '0';
 
-        // k is 1-indexed, string is 0-indexed
-        return s[k - 1];
+        int len = (1 << n) - 1;
+        int mid = len / 2 + 1;
+
+        // Middle bit is always 1
+        if (k == mid)
+            return '1';
+
+        // Left half is exactly S(n-1)
+        if (k < mid)
+            return findKthBit(n - 1, k);
+
+        // Right half is reverse + invert of S(n-1)
+        int mirror = len - k + 1;
+
+        char bit = findKthBit(n - 1, mirror);
+
+        // Invert the answer
+        return bit == '0' ? '1' : '0';
     }
 };
