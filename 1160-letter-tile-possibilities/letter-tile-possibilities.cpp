@@ -1,39 +1,44 @@
+/*     Scroll below to see JAVA code also    */
+/*
+    MY YOUTUBE VIDEO ON THIS Qn : https://www.youtube.com/watch?v=cD0D-QSKG20
+    Company Tags                : Will update soon
+    Leetcode Link               : https://leetcode.com/problems/letter-tile-possibilities
+*/
+
+
+/************************************************************ C++ ************************************************/
+//Approach-1 (Using simple backtracking Khandani Template)
+//T.C : O(n!)
+//S.C : O(n * n!), total possible sequences = n! and each having n length
 class Solution {
 public:
-    int count = 0;
+    int n;
 
-    void solve(string &tiles, vector<bool> &used) {
+    void solve(string& tiles, vector<bool>& used, unordered_set<string>& result, string &curr) {
+        result.insert(curr);
 
-        for (int i = 0; i < tiles.size(); i++) {
-
-            // Already used in current sequence
-            if (used[i]) continue;
-
-            // Skip duplicate characters at same recursion level
-            if (i > 0 && tiles[i] == tiles[i - 1] && !used[i - 1])
+        for(int i = 0; i < n; i++) {
+            if(used[i])
                 continue;
 
-            // Choose
+            curr.push_back(tiles[i]);
             used[i] = true;
-            count++;
 
-            // Explore
-            solve(tiles, used);
+            solve(tiles, used, result, curr);
 
-            // Backtrack
             used[i] = false;
+            curr.pop_back();
         }
     }
 
     int numTilePossibilities(string tiles) {
+        n = tiles.length();
+        vector<bool> used(n, false);
+        unordered_set<string> result;
+        string curr = "";
 
-        // Important for duplicate handling
-        sort(tiles.begin(), tiles.end());
+        solve(tiles, used, result, curr);
 
-        vector<bool> used(tiles.size(), false);
-
-        solve(tiles, used);
-
-        return count;
+        return result.size()-1;
     }
 };
