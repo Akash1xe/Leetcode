@@ -4,21 +4,18 @@ public:
 
     void solve(int idx, string &s, int parts, string curr) {
 
-        // Exactly 4 parts used
+        // If we created 4 parts
         if (parts == 4) {
+            // Valid only if entire string is used
             if (idx == s.size()) {
-                // Remove last '.'
-                curr.pop_back();
+                curr.pop_back(); // remove last '.'
                 ans.push_back(curr);
             }
             return;
         }
 
-        // Try length 1, 2, 3
-        for (int len = 1; len <= 3; len++) {
-
-            if (idx + len > s.size())
-                break;
+        // Try segment lengths 1, 2, 3
+        for (int len = 1; len <= 3 && idx + len <= s.size(); len++) {
 
             string part = s.substr(idx, len);
 
@@ -28,20 +25,17 @@ public:
 
             int num = stoi(part);
 
-            // IP number cannot exceed 255
+            // IP segment must be <= 255
             if (num > 255)
                 break;
 
-            solve(idx + len,
-                  s,
-                  parts + 1,
-                  curr + part + ".");
+            solve(idx + len, s, parts + 1, curr + part + ".");
         }
     }
 
     vector<string> restoreIpAddresses(string s) {
 
-        // Minimum 4 digits, maximum 12 digits
+        // IPv4 needs minimum 4 and maximum 12 digits
         if (s.size() < 4 || s.size() > 12)
             return {};
 
