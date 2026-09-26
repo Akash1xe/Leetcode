@@ -1,37 +1,6 @@
 class Solution {
 public:
 
-    bool solve(int ind, int target, vector<int>& nums, vector<vector<int>>& dp) {
-
-        // If target becomes 0, subset is found
-        if (target == 0) {
-            return true;
-        }
-
-        // Only first element is left
-        if (ind == 0) {
-            return nums[0] == target;
-        }
-
-        // Already calculated
-        if (dp[ind][target] != -1) {
-            return dp[ind][target];
-        }
-
-        // Case 1: Do not take current element
-        bool notTake = solve(ind - 1, target, nums, dp);
-
-        // Case 2: Take current element
-        bool take = false;
-
-        if (nums[ind] <= target) {
-            take = solve(ind - 1, target - nums[ind], nums, dp);
-        }
-
-        // Store and return answer
-        return dp[ind][target] = (take || notTake);
-    }
-
     bool canPartition(vector<int>& nums) {
 
         int n = nums.size();
@@ -42,19 +11,46 @@ public:
             totalSum += nums[i];
         }
 
-        // Odd total cannot be split equally
+        // If total sum is odd, equal partition is impossible
         if (totalSum % 2 != 0) {
             return false;
         }
 
         int target = totalSum / 2;
 
-        // dp[ind][target]
-        // -1 = not calculated
-        //  0 = false
-        //  1 = true
-        vector<vector<int>> dp(n, vector<int>(target + 1, -1));
+        // dp[ind][sum] = can we make 'sum'
+        // using elements from index 0 to ind
+        vector<vector<bool>> dp(n, vector<bool>(target + 1, false));
 
-        return solve(n - 1, target, nums, dp);
+        // Sum 0 can always be formed by taking nothing
+        for (int ind = 0; ind < n; ind++) {
+            dp[ind][0] = true;
+        }
+
+        // Using only nums[0], we can form nums[0]
+        if (nums[0] <= target) {
+            dp[0][nums[0]] = true;
+        }
+
+        // Build table
+        for (int ind = 1; ind < n; ind++) {
+
+            for (int sum = 1; sum <= target; sum++) {
+
+                // Do not take nums[ind]
+                bool notTake = dp[ind - 1][sum];
+
+                // Take nums[ind]
+                bool take = false;
+
+                if (nums[ind] <= sum) {
+                    take = dp[ind - 1][sum - nums[ind]];
+                }
+
+                dp[ind][sum] = (take || notTake);
+            }
+        }
+
+        return dp[n - 1][target];
     }
 };
