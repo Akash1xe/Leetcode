@@ -1,44 +1,59 @@
 class Solution {
 public:
-    string getPermutation(int n, int k) {
 
-        vector<int> nums;
-        int fact = 1;
+    int count = 0;
+    string ans = "";
 
-        // Store numbers from 1 to n
-        for (int i = 1; i < n; i++) {
-            fact *= i;
-            nums.push_back(i);
-        }
+    void solve(int n, int k, string& curr, vector<int>& used) {
 
-        nums.push_back(n);
+        // One complete permutation is formed
+        if (curr.size() == n) {
 
-        // Convert k to 0-based indexing
-        k--;
+            count++;
 
-        string ans = "";
-
-        while (true) {
-
-            // Find which number should come at current position
-            int index = k / fact;
-
-            ans += to_string(nums[index]);
-
-            // Remove the used number
-            nums.erase(nums.begin() + index);
-
-            // If no numbers are left
-            if (nums.empty()) {
-                break;
+            // We reached the k-th permutation
+            if (count == k) {
+                ans = curr;
             }
 
-            // Remaining permutation number
-            k = k % fact;
-
-            // Update factorial for next position
-            fact = fact / nums.size();
+            return;
         }
+
+        // Try numbers from 1 to n
+        // This keeps permutations in lexicographical order
+        for (int i = 1; i <= n; i++) {
+
+            // Already used
+            if (used[i]) {
+                continue;
+            }
+
+            // Choose
+            used[i] = 1;
+            curr += to_string(i);
+
+            // Explore
+            solve(n, k, curr, used);
+
+            // If answer is already found,
+            // no need to generate more permutations
+            if (!ans.empty()) {
+                return;
+            }
+
+            // Backtrack
+            curr.pop_back();
+            used[i] = 0;
+        }
+    }
+
+    string getPermutation(int n, int k) {
+
+        vector<int> used(n + 1, 0);
+
+        string curr = "";
+
+        solve(n, k, curr, used);
 
         return ans;
     }
