@@ -20,15 +20,12 @@ public:
 
         int cherries = grid[r1][c1];
 
-        if (r1 != r2 || c1 != c2)
+        if (r1 != r2)
             cherries += grid[r2][c2];
 
-        int next = max({
-            Func(r1 + 1, r2 + 1, c1, grid),    
-            Func(r1 + 1, r2, c1, grid),       
-            Func(r1, r2 + 1, c1 + 1, grid),     
-            Func(r1, r2, c1 + 1, grid)          
-        });
+        int next =
+            max({Func(r1 + 1, r2 + 1, c1, grid), Func(r1 + 1, r2, c1, grid),
+                 Func(r1, r2 + 1, c1 + 1, grid), Func(r1, r2, c1 + 1, grid)});
 
         return dp[r1][r2][c1] = cherries + next;
     }
