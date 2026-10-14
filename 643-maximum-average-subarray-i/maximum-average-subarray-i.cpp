@@ -4,8 +4,10 @@ public:
     double findMaxAverage(vector<int>& nums, int k) {
         int n = nums.size() - 1;
 
-        long long maxSum = LLONG_MIN;
-        long long sum = 0;
+        int maxSum = INT_MIN;
+        int sum = 0;
+
+        int ans = -1;
 
         int left = 0;
         int right = 0;
@@ -25,6 +27,7 @@ public:
             right++;
         }
 
-        return (double)maxSum / k;
+        ans = maxSum;
+        return (double)ans / k;
     }
 };
