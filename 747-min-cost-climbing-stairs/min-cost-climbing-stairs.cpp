@@ -1,37 +1,26 @@
+
 class Solution {
 public:
-
-    int solve(int n, vector<int>& cost, vector<int>& dp) {
-
-        // Base cases
-        if (n == 0)
-            return cost[0];
-
-        if (n == 1)
-            return cost[1];
-
-        // Already calculated
-        if (dp[n] != -1)
-            return dp[n];
-
-        // Come to n from n-1
-        int oneStep = cost[n] + solve(n - 1, cost, dp);
-
-        // Come to n from n-2
-        int twoStep = cost[n] + solve(n - 2, cost, dp);
-
-        return dp[n] = min(oneStep, twoStep);
-    }
-
     int minCostClimbingStairs(vector<int>& cost) {
 
         int n = cost.size();
 
-        vector<int> dp(n, -1);
+        vector<int> dp(n, 0);
 
-        // We can start from step 0 or step 1.
-        // The top is after the last index.
-        return min(solve(n - 1, cost, dp),
-                   solve(n - 2, cost, dp));
+        // Base cases
+        dp[0] = cost[0];
+        dp[1] = cost[1];
+
+        // Build the DP table
+        for (int i = 2; i < n; i++) {
+
+            int oneStep = cost[i] + dp[i - 1];
+            int twoStep = cost[i] + dp[i - 2];
+
+            dp[i] = min(oneStep, twoStep);
+        }
+
+        // We can start from step 0 or step 1
+        return min(dp[n - 1], dp[n - 2]);
     }
 };
