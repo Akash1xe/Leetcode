@@ -1,40 +1,36 @@
 class Solution {
 public:
-    int m;
-    int n;
-
-    int solve(int i, int j, vector<vector<int>>& dungeon,
-              vector<vector<int>>& dp) {
-        if (i >= m || j >= n) {
-            return 1e9;
-        }
-
-        if (i == m - 1 && j == n - 1) {
-            if (dungeon[i][j] > 0) {
-                return 1;
-            }
-
-            return abs(dungeon[i][j]) + 1;
-        }
-
-        if (dp[i][j] != -1) {
-            return dp[i][j];
-        }
-
-        int right = solve(i, j + 1, dungeon, dp);
-        int down = solve(i + 1, j, dungeon, dp);
-
-        int result = min(right, down) - dungeon[i][j];
-
-        return dp[i][j] = max(1, result);
-    }
-
     int calculateMinimumHP(vector<vector<int>>& dungeon) {
-        m = dungeon.size();
-        n = dungeon[0].size();
+        int m = dungeon.size();
+        int n = dungeon[0].size();
 
-        vector<vector<int>> dp(m, vector<int>(n, -1));
+        vector<vector<int>> dp(m, vector<int>(n, 0));
 
-        return solve(0, 0, dungeon, dp);
+        for (int i = m - 1; i >= 0; i--) {
+            for (int j = n - 1; j >= 0; j--) {
+
+                if (i == m - 1 && j == n - 1) {
+                    dp[i][j] = max(1, 1 - dungeon[i][j]);
+                    continue;
+                }
+
+                int right = 1e9;
+                int down = 1e9;
+
+                if (j + 1 < n) {
+                    right = dp[i][j + 1];
+                }
+
+                if (i + 1 < m) {
+                    down = dp[i + 1][j];
+                }
+
+                int result = min(right, down) - dungeon[i][j];
+
+                dp[i][j] = max(1, result);
+            }
+        }
+
+        return dp[0][0];
     }
 };
