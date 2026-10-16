@@ -1,60 +1,40 @@
 class Solution {
 public:
+    int m;
+    int n;
 
-    int solve(vector<vector<int>>& dungeon,
-              int i,
-              int j,
+    int solve(int i, int j, vector<vector<int>>& dungeon,
               vector<vector<int>>& dp) {
-
-        int m = dungeon.size();
-        int n = dungeon[0].size();
-
-        // Outside the grid
         if (i >= m || j >= n) {
-            return INT_MAX;
+            return 1e9;
         }
 
-        // Already calculated
+        if (i == m - 1 && j == n - 1) {
+            if (dungeon[i][j] > 0) {
+                return 1;
+            }
+
+            return abs(dungeon[i][j]) + 1;
+        }
+
         if (dp[i][j] != -1) {
             return dp[i][j];
         }
 
-        // Destination
-        if (i == m - 1 && j == n - 1) {
-            return dp[i][j] =
-                max(1, 1 - dungeon[i][j]);
-        }
+        int right = solve(i, j + 1, dungeon, dp);
+        int down = solve(i + 1, j, dungeon, dp);
 
-        // Minimum health required from right
-        int right =
-            solve(dungeon, i, j + 1, dp);
+        int result = min(right, down) - dungeon[i][j];
 
-        // Minimum health required from down
-        int down =
-            solve(dungeon, i + 1, j, dp);
-
-        // Choose the better path
-        int nextHealth = min(right, down);
-
-        // Health required before current cell
-        int requiredHealth =
-            nextHealth - dungeon[i][j];
-
-        // Health must always be at least 1
-        return dp[i][j] =
-            max(1, requiredHealth);
+        return dp[i][j] = max(1, result);
     }
 
     int calculateMinimumHP(vector<vector<int>>& dungeon) {
+        m = dungeon.size();
+        n = dungeon[0].size();
 
-        int m = dungeon.size();
-        int n = dungeon[0].size();
+        vector<vector<int>> dp(m, vector<int>(n, -1));
 
-        vector<vector<int>> dp(
-            m,
-            vector<int>(n, -1)
-        );
-
-        return solve(dungeon, 0, 0, dp);
+        return solve(0, 0, dungeon, dp);
     }
 };
