@@ -1,33 +1,46 @@
-//S.C : O(n*n), assuming that num can go till n in worst case (we took t[n][n])
 class Solution {
 public:
+    int M = 1e9 + 7;
 
-    int M = 1e9+7;
-    int t[301][301];
+    int getPower(int num, int x, int n) {
+        long long ans = 1;
 
-    int solve(int n, int num, int x) {
-        if(n == 0)
-            return 1;
+        for(int i = 0; i < x; i++) {
+            ans *= num;
 
-        if(n < 0)
-            return 0;
-
-        int currPowerValue = pow(num, x);
-        if(currPowerValue > n) {
-            return 0;
+            if(ans > n)
+                return n + 1;
         }
 
-        if(t[n][num] != -1) {
-            return t[n][num];
-        }
-
-        int take = solve(n-currPowerValue, num+1, x);
-        int skip = solve(n, num+1, x);
-
-        return t[n][num] = (take+skip)%M;
+        return ans;
     }
+
     int numberOfWays(int n, int x) {
-        memset(t, -1, sizeof(t));
-        return solve(n, 1, x);
+
+        vector<vector<int>> dp(n + 1, vector<int>(n + 2, 0));
+
+        for(int num = 1; num <= n + 1; num++) {
+            dp[0][num] = 1;
+        }
+
+        for(int curr = 1; curr <= n; curr++) {
+
+            for(int num = n; num >= 1; num--) {
+
+                int power = getPower(num, x, n);
+
+                int take = 0;
+
+                if(power <= curr) {
+                    take = dp[curr - power][num + 1];
+                }
+
+                int skip = dp[curr][num + 1];
+
+                dp[curr][num] = (take + skip) % M;
+            }
+        }
+
+        return dp[n][1];
     }
 };
