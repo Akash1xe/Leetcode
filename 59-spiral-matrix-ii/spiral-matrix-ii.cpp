@@ -2,28 +2,41 @@ class Solution {
 public:
     vector<vector<int>> generateMatrix(int n) {
         vector<vector<int>> ans(n, vector<int>(n, 0));
-        vector<vector<bool>> visited(n, vector<bool>(n, false));
 
-        vector<int> dx = {0, 1, 0, -1};
-        vector<int> dy = {1, 0, -1, 0};
+        int top = 0, bottom = n - 1;
+        int left = 0, right = n - 1;
 
-        int row = 0, col = 0;
-        int dir = 0;
+        int num = 1;
 
-        for (int num = 1; num <= n * n; num++) {
-            ans[row][col] = num;
-            visited[row][col] = true;
+        while (top <= bottom && left <= right) {
 
-            int nr = row + dx[dir];
-            int nc = col + dy[dir];
+            // 1. Left to Right
+            for (int j = left; j <= right; j++) {
+                ans[top][j] = num++;
+            }
+            top++;
 
-            if (nr < 0 || nr >= n || nc < 0 || nc >= n ||
-                visited[nr][nc]) {
-                dir = (dir + 1) % 4;
+            // 2. Top to Bottom
+            for (int i = top; i <= bottom; i++) {
+                ans[i][right] = num++;
+            }
+            right--;
+
+            // 3. Right to Left
+            if (top <= bottom) {
+                for (int j = right; j >= left; j--) {
+                    ans[bottom][j] = num++;
+                }
+                bottom--;
             }
 
-            row += dx[dir];
-            col += dy[dir];
+            // 4. Bottom to Top
+            if (left <= right) {
+                for (int i = bottom; i >= top; i--) {
+                    ans[i][left] = num++;
+                }
+                left++;
+            }
         }
 
         return ans;
