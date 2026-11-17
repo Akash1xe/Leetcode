@@ -1,9 +1,7 @@
   //Company Tags                : Airbnb
 
 
-/******************************************** C++ ********************************************/
-//Approach - BFS (asking for minimum moves - and problem different states)
-//T.C : O(6!) : The puzzle has 6 ! = 720 possible permutations of the board, as there are 6 tiles, including the blank tile (0). In the worst case, BFS explores all permutations.
+
 //S.C : O(6!) All states are stored in map
 class Solution {
 public:
