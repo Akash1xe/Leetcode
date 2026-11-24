@@ -1,58 +1,43 @@
 class Solution {
 public:
+    int solve(vector<int>& rods, int i, int diff,
+              vector<vector<int>>& dp, int offset) {
+
+        int n = rods.size();
+
+        if (i == n) {
+            if (diff == 0)
+                return 0;
+
+            return -1e9;
+        }
+
+        if (dp[i][diff + offset] != -1)
+            return dp[i][diff + offset];
+
+        int nothing = solve(rods, i + 1, diff, dp, offset);
+
+        int in_rod_1 = rods[i] +
+                       solve(rods, i + 1, diff + rods[i], dp, offset);
+
+        int not_in_rod1 = rods[i] +
+                          solve(rods, i + 1, diff - rods[i], dp, offset);
+
+        return dp[i][diff + offset] =
+               max({nothing, in_rod_1, not_in_rod1});
+    }
+
     int tallestBillboard(vector<int>& rods) {
 
         int n = rods.size();
 
-        int sum = 0;
-
-        for (int x : rods) {
-            sum += x;
-        }
-
-        int offset = sum;
+        int total_sum = accumulate(rods.begin(), rods.end(), 0);
 
         vector<vector<int>> dp(
-            n + 1,
-            vector<int>(2 * sum + 1, -1e9)
+            n,
+            vector<int>(2 * total_sum + 1, -1)
         );
 
-        // Base case
-        dp[n][offset] = 0;
-
-        // Bottom-up
-        for (int i = n - 1; i >= 0; i--) {
-
-            for (int diff = -sum; diff <= sum; diff++) {
-
-                int idx = diff + offset;
-
-                // Don't take the rod
-                int nothing = dp[i + 1][idx];
-
-                // Put rod in first support
-                int in_rod_1 = -1e9;
-
-                if (diff + rods[i] <= sum) {
-                    in_rod_1 =
-                        rods[i] +
-                        dp[i + 1][idx + rods[i]];
-                }
-
-                // Put rod in second support
-                int not_in_rod_1 = -1e9;
-
-                if (diff - rods[i] >= -sum) {
-                    not_in_rod_1 =
-                        rods[i] +
-                        dp[i + 1][idx - rods[i]];
-                }
-
-                dp[i][idx] =
-                    max({nothing, in_rod_1, not_in_rod_1});
-            }
-        }
-
-        return dp[0][offset] / 2;
+        return solve(rods, 0, 0, dp, total_sum) / 2;
     }
 };
