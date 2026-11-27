@@ -1,34 +1,24 @@
 class Solution {
 public:
-    int solve(int i, int prev, vector<int>& nums, vector<vector<int>>& dp) {
+    int func(vector<int>& nums, int i, vector<int>& dp) {
+        if (dp[i] != -1) return dp[i];
 
-        // Base case
-        if (i == nums.size())
-            return 0;
-
-        // Check memoization
-        if (dp[i][prev + 1] != -1)
-            return dp[i][prev + 1];
-
-        // Option 1: Skip the current element
-        int notTake = solve(i + 1, prev, nums, dp);
-
-        // Option 2: Take the current element
-        int take = 0;
-
-        if (prev == -1 || nums[i] > nums[prev]) {
-            take = 1 + solve(i + 1, i, nums, dp);
+        int ans = 1;
+        for (int j = 0; j < i; j++) {
+            if (nums[i] > nums[j]) {
+                ans = max(ans, 1 + func(nums, j, dp));
+            }
         }
-
-        return dp[i][prev + 1] = max(take, notTake);
+        return dp[i] = ans;
     }
 
     int lengthOfLIS(vector<int>& nums) {
-
         int n = nums.size();
-
-        vector<vector<int>> dp(n, vector<int>(n + 1, -1));
-
-        return solve(0, -1, nums, dp);
+        vector<int> dp(n, -1);
+        int ans = 1;
+        for (int i = 0; i < n; i++) {
+            ans = max(ans, func(nums, i, dp));
+        }
+        return ans;
     }
 };
